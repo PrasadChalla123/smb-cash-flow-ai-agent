@@ -41,14 +41,32 @@ if uploaded is not None:
                     result = response.json()
                     st.success(result["message"])
 
-                    # Display forecast table
+                    # Convert backend JSON to DataFrame
                     forecast_df = pd.DataFrame(result["forecast"])
-                    st.subheader("📊 Forecast Results")
-                    st.dataframe(forecast_df)
 
-                    # Display AI summary
+                    # Clean and format for display
+                    display_df = forecast_df.copy()
+
+                    # Format Month as YYYY-MM
+                    display_df["Month"] = pd.to_datetime(display_df["Month"]).dt.strftime("%Y-%m")
+
+                    # Round and format currency
+                    for col in ["Predicted_Net_Cash", "Lower_Bound", "Upper_Bound"]:
+                        display_df[col] = display_df[col].apply(lambda x: f"₹{x:,.0f}")
+
+                    # Reorder columns neatly
+                    display_df = display_df[["Month", "Predicted_Net_Cash", "Lower_Bound", "Upper_Bound", "Risk", "Reason"]]
+
+                    # Display formatted forecast
+                    st.subheader("📊 Forecast Results")
+                    st.dataframe(display_df, use_container_width=True)
+
+                    # AI Summary Section
                     st.subheader("💬 AI Summary")
-                    st.write(result["ai_summary"])
+                    if result.get("ai_summary"):
+                        st.info(result["ai_summary"])
+                    else:
+                        st.warning("No AI summary available. Ensure your backend OpenAI key is set correctly.")
 
                 else:
                     st.error(f"❌ Backend Error: {response.text}")
