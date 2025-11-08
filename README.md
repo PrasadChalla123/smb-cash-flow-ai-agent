@@ -19,6 +19,7 @@ It analyzes revenues, expenses, receivables, and payables to forecast future cas
 ---
 
 ## Architecture
+    ![System Architecture](assets/architecture.png)
 
 
 
